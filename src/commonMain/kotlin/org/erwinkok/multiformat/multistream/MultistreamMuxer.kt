@@ -90,7 +90,7 @@ class MultistreamMuxer<T : Utf8Connection> {
     }
 
     fun removeHandler(protocol: ProtocolId) {
-        handlers.removeIf { it.protocol == protocol }
+        handlers.removeAll { it.protocol == protocol }
     }
 
     fun clearHandlers() {

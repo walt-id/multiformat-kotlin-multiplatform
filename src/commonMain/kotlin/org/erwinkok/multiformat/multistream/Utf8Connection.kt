@@ -3,7 +3,6 @@ package org.erwinkok.multiformat.multistream
 
 import io.ktor.utils.io.core.*
 
-
 interface Utf8Connection : Closeable {
     suspend fun readUtf8(): Result<String>
     suspend fun writeUtf8(vararg messages: String): Result<Unit>

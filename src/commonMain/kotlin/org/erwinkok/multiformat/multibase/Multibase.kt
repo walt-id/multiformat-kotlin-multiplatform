@@ -1,8 +1,6 @@
 // Copyright (c) 2022 Erwin Kok. BSD-3-Clause license. See LICENSE file for more details.
 package org.erwinkok.multiformat.multibase
 
-
-import io.ktor.utils.io.core.*
 import org.erwinkok.multiformat.multibase.bases.*
 import org.erwinkok.multiformat.util.flatMap
 
@@ -17,7 +15,7 @@ enum class Multibase(
         "\u0000",
         "identity",
         { data -> data.decodeToString() },
-        { data -> Result.success(data.toByteArray()) },
+        { data -> Result.success(data.encodeToByteArray()) },
     ),
     BASE2("0", "base2", { data -> Base2.encode(data) }, { data -> Base2.decode(data) }),
     BASE8("7", "base8", { data -> Base8.encode(data) }, { data -> Base8.decode(data) }),

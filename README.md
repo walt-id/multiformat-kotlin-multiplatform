@@ -1,24 +1,27 @@
-# multiformat
+# Multiformat port to Kotlin Multiplatform
+This library is a port of `https://github.com/erwin-kok/multiformat - by Erwin Kok` to pure Kotlin with only kotlinx dependencies.
+
+All platform-specific dependencies were removed, and external libraries were replaced with internal re-implementations that do not depend on any platform.
+Various libraries could be removed and replaced with functionality that is nowadays by the Kotlin standard library.
+
+```text
+TODO: Small tasks for Multiplatform
+1/2: `codePointAt` for `decodeBase` of Multibase -> there is a Kotlin Unicode Codepoint library
+2/3: Signatures by a Multiplatform signature library (instead of java.security.MessageDigest)
+3/3: ktor-network is only included for ConcurrentSet & Closeable
+```
+
+```text
+TODO: Bigger tasks: Not implemented (yet)
+1/1: MultiAddress schemes IP4 / IP6, IP4Zone / IP6Zone (porting of dependency was started)
+```
+
+Find below the original README for more information:
+
+## multiformat
 Self-describing values for Future-proofing
 
-[![ci](https://github.com/erwin-kok/multiformat/actions/workflows/ci.yaml/badge.svg)](https://github.com/erwin-kok/multiformat/actions/workflows/ci.yaml)
-[![Maven Central](https://img.shields.io/maven-central/v/org.erwinkok.multiformat/multiformat)](https://central.sonatype.com/artifact/org.erwinkok.result/result-monad)
-[![Kotlin](https://img.shields.io/badge/kotlin-1.9.0-blue.svg?logo=kotlin)](http://kotlinlang.org)
 [![License](https://img.shields.io/github/license/erwin-kok/multiformat.svg)](https://github.com/erwin-kok/multiformat/blob/master/LICENSE)
-
-## Usage
-
-Kotlin DSL:
-
-```kotlin
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    implementation("org.erwinkok.multiformat:multiformat:$latest")
-}
-```
 
 ## Introduction
 
@@ -34,66 +37,6 @@ Notably, the following protocols are implemented:
 
 Next to this, it also implements Cid: https://github.com/multiformats/cid
 
-
-## Using the Result Monad
-
-This project is using the [result-monad](https://github.com/erwin-kok/result-monad)
-
-This means that (almost) all methods of this project return a `Result<...>`. The caller can check whether an error was generated, 
-or it can use the value. For example:
-
-```kotlin
-val connection = createConnection()
-    .getOrElse {
-        log.error { "Could not create connection: ${it.message}" }
-        return Result.failure(it)
-    }
-
-connection.write(...)
-
-
-fun createConnection(): Result<Connection> {
-  ...
-}
-```
-
-The advantage is that it is easier (at least for me) to track the flow of the code and to handle correct/error cases. 
-The disadvantage of exceptions is, is that you do not know which statement in a try-block generated the exception. For 
-example:
-
-```kotlin
-var connection: Connection? = null
-try {
-    ...
-    connection = createConnection()
-    ...
-    methodThrowingException()
-    ...
-} catch (e: Exception) {
-    if (connection != null) {
-        connection.close()
-    }
-}
-```
-
-In the catch-block you do not know where the exception was thrown: before or after creating the connection. This means 
-that you do not know if the connection should be closed, or not. Of course there are many ways to solve this.
-
-With the result-monad you can do something like:
-```kotlin
-val connection = createConnection()
-    .getOrElse {
-        log.error { "Could not create connection: ${it.message}" }
-        return Result.failure(it)
-    }
-...
-methodGeneratingError()
-    .onFailure {
-        connection.close()
-        return
-    }
-...
-```
 
 ## Usage
 

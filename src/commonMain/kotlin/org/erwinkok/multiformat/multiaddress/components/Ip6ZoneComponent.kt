@@ -1,12 +1,10 @@
 // Copyright (c) 2022 Erwin Kok. BSD-3-Clause license. See LICENSE file for more details.
 package org.erwinkok.multiformat.multiaddress.components
 
-import io.ktor.utils.io.core.*
 import org.erwinkok.multiformat.multiaddress.Protocol
 import org.erwinkok.multiformat.multiaddress.Transcoder
-import kotlin.text.String
 
-class Ip6ZoneComponent private constructor(val address: String) : Component(Protocol.IP6ZONE, address.toByteArray()) {
+class Ip6ZoneComponent private constructor(val address: String) : Component(Protocol.IP6ZONE, address.encodeToByteArray()) {
     override val value: String
         get() = address
 
@@ -19,7 +17,7 @@ class Ip6ZoneComponent private constructor(val address: String) : Component(Prot
             if (bytes.indexOf('/'.code.toByte()) >= 0) {
                 return Result.failure(IllegalArgumentException("IPv6 zone ID contains '/': " + bytes.toHexString()))
             }
-            return Result.success(Ip6ZoneComponent(String(bytes)))
+            return Result.success(Ip6ZoneComponent(bytes.decodeToString()))
         }
 
         override fun stringToComponent(protocol: Protocol, string: String): Result<Ip6ZoneComponent> {
