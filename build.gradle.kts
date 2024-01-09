@@ -1,24 +1,22 @@
 // Copyright (c) 2022 Erwin Kok. BSD-3-Clause license. See LICENSE file for more details.
-@file:Suppress("UnstableApiUsage")
-
 import com.adarshr.gradle.testlogger.theme.ThemeType
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
-@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-    kotlin("jvm") version "1.9.0"
+    val kotlinVersion = "1.9.22"
+    kotlin("multiplatform") version kotlinVersion
+    kotlin("plugin.serialization") version kotlinVersion
 
-    `java-library`
-    `java-test-fixtures`
+//    `java-test-fixtures`
     signing
     `maven-publish`
 
-    alias(libs.plugins.build.kover)
-    alias(libs.plugins.build.ktlint)
-    alias(libs.plugins.build.nexus)
+//    alias(libs.plugins.build.kover)
+//    alias(libs.plugins.build.ktlint)
+//    alias(libs.plugins.build.nexus)
     alias(libs.plugins.build.versions)
     alias(libs.plugins.build.testlogger)
-    alias(libs.plugins.build.protobuf)
-    alias(libs.plugins.build.serialization)
+//    alias(libs.plugins.build.protobuf)
 }
 
 repositories {
@@ -30,14 +28,61 @@ repositories {
 }
 
 group = "org.erwinkok.multiformat"
-version = "1.1.0"
+version = "1.2.0"
 
-java {
-    withSourcesJar()
-    withJavadocJar()
+kotlin {
+    jvm {
+        withJava()
+        tasks.withType<Test>().configureEach {
+            useJUnitPlatform()
+        }
+    }
+    js(IR) {
+        nodejs {
+            generateTypeScriptDefinitions()
+        }
+        binaries.library()
+    }
+    sourceSets {
+        val commonMain by getting {
+            dependencies {
+                implementation(kotlin("stdlib"))
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+
+                implementation("io.ktor:ktor-network:2.3.7") // for Closeable
+
+                implementation("io.github.oshai:kotlin-logging:5.1.0")
+            }
+        }
+        val jvmMain by getting {
+            dependencies {}
+        }
+        val jvmTest by getting {
+            dependencies {
+                implementation(libs.junit.jupiter.api)
+                implementation(libs.junit.jupiter.params)
+                implementation(libs.kotlinx.coroutines.test)
+
+                runtimeOnly(libs.junit.jupiter.engine)
+            }
+        }
+        val jsMain by getting {
+            dependencies {}
+        }
+        val jsTest by getting {
+            dependencies {}
+        }
+    }
+
 }
 
-dependencies {
+/*java {
+    withSourcesJar()
+    withJavadocJar()
+}*/
+
+/*dependencies {
     implementation(platform(kotlin("bom")))
     implementation(kotlin("stdlib"))
 
@@ -48,7 +93,7 @@ dependencies {
 
     implementation(libs.ipaddress)
     implementation(libs.ktor.network)
-    implementation(libs.result.monad)
+    *//*implementation(libs.result.monad)*//*
     implementation(libs.slf4j.api)
 
     testImplementation(libs.junit.jupiter.api)
@@ -59,13 +104,13 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.debug)
 
     testRuntimeOnly(libs.junit.jupiter.engine)
-}
+}*/
 
-testlogger {
+/*testlogger {
     theme = ThemeType.MOCHA
-}
+}*/
 
-tasks {
+/*tasks {
     withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
         compilerOptions {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
@@ -86,7 +131,7 @@ tasks {
     test {
         useJUnitPlatform()
     }
-}
+}*/
 
 fun isNonStable(version: String): Boolean {
     val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { version.uppercase().contains(it) }
@@ -95,15 +140,15 @@ fun isNonStable(version: String): Boolean {
     return isStable.not()
 }
 
-sourceSets {
+/*sourceSets {
     main {
         java {
             srcDirs("src/main/kotlin", "build/generated/source/proto/main/java")
         }
     }
-}
+}*/
 
-koverReport {
+/*koverReport {
     filters {
         excludes {
             classes(
@@ -132,8 +177,9 @@ koverReport {
             }
         }
     }
-}
+}*/
 
+/*
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
@@ -184,3 +230,4 @@ nexusPublishing {
         }
     }
 }
+*/

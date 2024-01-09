@@ -45,8 +45,8 @@ or it can use the value. For example:
 ```kotlin
 val connection = createConnection()
     .getOrElse {
-        log.error { "Could not create connection: ${errorMessage(it)}" }
-        return Err(it)
+        log.error { "Could not create connection: ${it.message}" }
+        return Result.failure(it)
     }
 
 connection.write(...)
@@ -83,8 +83,8 @@ With the result-monad you can do something like:
 ```kotlin
 val connection = createConnection()
     .getOrElse {
-        log.error { "Could not create connection: ${errorMessage(it)}" }
-        return Err(it)
+        log.error { "Could not create connection: ${it.message}" }
+        return Result.failure(it)
     }
 ...
 methodGeneratingError()
@@ -106,8 +106,8 @@ A (very) brief description on how to use multiformats:
 ```kotlin
 val addr1 = Multiaddress.fromString("/ip4/127.0.0.1/p2p/QmcgpsyWgH8Y8ajJz1Cu72KnS5uo2Aa2LpzU7kinSupNKC/tcp/1234")
     .getOrElse {
-        log.error { "Could not parse Multiaddress: ${errorMessage(it)}" }
-        return Err(it)
+        log.error { "Could not parse Multiaddress: ${it.message}" }
+        return Result.failure(it)
     }
 val ip6Addr = Multiaddress.fromString("/ip6/2001:8a0:7ac5:4201:3ac9:86ff:fe31:7095").getOrThrow()
 val tcpAddr = Multiaddress.fromString("/tcp/8000").getOrThrow()
@@ -141,8 +141,8 @@ val multihash = Multihash.fromBase58("QmPfjpVaf593UQJ9a5ECvdh2x17XuJYG5Yanv5UFnH
 ```kotlin
 val selected = MultistreamMuxer.selectOneOf(setOf("/a", "/b", "/c"), connection)
     .getOrElse {
-        log.error { "Error selecting protocol: ${errorMessage(it)}" }
-        return Err(it)
+        log.error { "Error selecting protocol: ${it.message}" }
+        return Result.failure(it)
     }
 ```
 
