@@ -21,7 +21,7 @@ class MultistreamMuxer<T : Utf8Connection> {
         val result = mutableListOf<String>()
         val token = readNextToken(connection)
             .getOrElse {
-                if (it == IllegalStateException("EndOfStream")) {
+                if (it.message == IllegalStateException("EndOfStream").message) {
                     return Result.success(result)
                 }
                 return Result.failure(it)
@@ -42,7 +42,7 @@ class MultistreamMuxer<T : Utf8Connection> {
         while (true) {
             val nextToken = readNextToken(connection)
                 .getOrElse {
-                    if (it == IllegalStateException("EndOfStream")) {
+                    if (it.message == IllegalStateException("EndOfStream").message) {
                         return Result.failure(ErrEndNegotiating)
                     }
                     return Result.failure(it)
@@ -245,7 +245,7 @@ class MultistreamMuxer<T : Utf8Connection> {
             while (true) {
                 val nextToken = readNextToken(connection)
                     .getOrElse {
-                        if (it == IllegalStateException("EndOfStream")) {
+                        if (it.message == IllegalStateException("EndOfStream").message) {
                             return Result.failure(ErrNotSupported)
                         }
                         return Result.failure(it)

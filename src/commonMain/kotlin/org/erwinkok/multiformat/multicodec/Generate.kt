@@ -14,7 +14,7 @@ private data class Codec(
 )
 
 fun main() {
-    val reader = File("../spec/multicodec/table.csv").bufferedReader()
+    val reader = File("spec/multicodec/table.csv").bufferedReader()
     val codecs = readCsv(reader)
     val tags = codecs.map { it.tag.replaceFirstChar { ch -> ch.uppercaseChar() } }.distinct().sorted()
     writeTagFile(tags)

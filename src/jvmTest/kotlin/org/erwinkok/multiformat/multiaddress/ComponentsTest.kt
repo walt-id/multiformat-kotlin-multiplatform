@@ -11,7 +11,7 @@ import org.erwinkok.multiformat.multiaddress.components.*
 import org.erwinkok.multiformat.multibase.Multibase
 import org.erwinkok.multiformat.util.CustomStream
 import org.erwinkok.multiformat.util.expectNoErrors
-import org.erwinkok.multiformat.util.toByteArray
+
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
@@ -392,7 +392,7 @@ internal class ComponentsTest {
                 assertEquals(bytes.toHexString(), multiaddress1.bytes.toHexString())
                 val multiaddress2 = Multiaddress.fromBytes(bytes).expectNoErrors()
                 assertEquals(multiaddress2, multiaddress1)
-                val out = CustomStream<Byte>()
+                val out = CustomStream()
                 components.forEach { it.writeTo(out) }
                 assertEquals(out.toByteArray().toHexString(), multiaddress1.bytes.toHexString())
             }

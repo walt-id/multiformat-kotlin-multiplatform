@@ -56,7 +56,7 @@ private fun len64(x: ULong): Int {
 fun main() {
     for (i in 0uL..(1uL shl 16)) {
         println("Test nr: $i")
-        val outputStream = CustomStream<Byte>()
+        val outputStream = CustomStream()
         val expected = outputStream.writeUnsignedVarInt(i).expectNoErrors()
         println("In buffer A: " + outputStream.buffer.toList())
         val size = uvarintSize(i)
@@ -65,7 +65,7 @@ fun main() {
 
         check(expected == size) { "Mismatch for $i, expected=${expected},size=$size" }
 
-        val inputStream = CustomStream<Byte>(ArrayDeque(outputStream.toByteArray().toList()))
+        val inputStream = outputStream.toByteArray().toCustomStream()
         println("In buffer B: " + inputStream.buffer.toList())
         val xi = inputStream.readUnsignedVarInt().expectNoErrors()
 

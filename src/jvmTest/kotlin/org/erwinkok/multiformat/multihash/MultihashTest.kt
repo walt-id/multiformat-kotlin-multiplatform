@@ -7,7 +7,7 @@ import org.erwinkok.expectError
 import org.erwinkok.multiformat.multicodec.Multicodec
 import org.erwinkok.multiformat.util.CustomStream
 import org.erwinkok.multiformat.util.expectNoErrors
-import org.erwinkok.multiformat.util.toByteArray
+
 import org.erwinkok.multiformat.util.writeUnsignedVarInt
 
 
@@ -54,7 +54,7 @@ internal class MultihashTest {
         return arguments.map { (hex, code, name, _) ->
             DynamicTest.dynamicTest(name) {
                 val digest = hex.hexToByteArray()
-                val stream = CustomStream<Byte>()
+                val stream = CustomStream()
                 stream.writeUnsignedVarInt(code)
                 stream.writeUnsignedVarInt(digest.size)
                 val multihashBytes = stream.toByteArray() + digest
@@ -79,7 +79,7 @@ internal class MultihashTest {
         return arguments.map { (hex, code, name, error) ->
             DynamicTest.dynamicTest(name) {
                 val digest = hex.hexToByteArray()
-                val stream = CustomStream<Byte>()
+                val stream = CustomStream()
                 stream.writeUnsignedVarInt(code)
                 stream.writeUnsignedVarInt(digest.size)
                 val multihashBytes = stream.toByteArray() + digest
@@ -100,7 +100,7 @@ internal class MultihashTest {
         return arguments.map { (hex, code, name, _) ->
             DynamicTest.dynamicTest(name) {
                 val digest = hex.hexToByteArray()
-                val stream = CustomStream<Byte>()
+                val stream = CustomStream()
                 stream.writeUnsignedVarInt(code)
                 stream.writeUnsignedVarInt(digest.size)
                 val multihashBytes = stream.toByteArray() + digest

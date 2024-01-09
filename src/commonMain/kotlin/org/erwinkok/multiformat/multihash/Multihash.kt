@@ -27,15 +27,15 @@ class Multihash private constructor(val type: Multicodec, val digest: ByteArray)
     }
 
     fun bytes(): ByteArray {
-        val stream = CustomStream<Byte>()
+        val stream = CustomStream()
         stream.writeUnsignedVarInt(code)
         stream.writeUnsignedVarInt(digest.size)
-        stream.writeAll(digest.toTypedArray())
+        stream.writeBytes(digest)
         return stream.toByteArray()
     }
 
-    fun serialize(s: CustomStream<Byte>) {
-        s.writeAll(bytes().toTypedArray())
+    fun serialize(s: CustomStream) {
+        s.writeBytes(bytes())
     }
 
     override fun toString(): String {
@@ -84,7 +84,7 @@ class Multihash private constructor(val type: Multicodec, val digest: ByteArray)
             return deserialize(bytes)
         }
 
-        fun fromStream(stream: CustomStream<Byte>): Result<Multihash> {
+        fun fromStream(stream: CustomStream): Result<Multihash> {
             return deserialize(stream)
         }
 
@@ -136,10 +136,10 @@ class Multihash private constructor(val type: Multicodec, val digest: ByteArray)
         }
 
         private fun deserialize(buf: ByteArray): Result<Multihash> {
-            return deserialize(CustomStream(ArrayDeque(buf.toList())))
+            return deserialize(buf.toCustomStream())
         }
 
-        private fun deserialize(din: CustomStream<Byte>): Result<Multihash> {
+        private fun deserialize(din: CustomStream): Result<Multihash> {
             if (din.available() < 2) {
                 return Result.failure(ErrTooShort)
             }
@@ -161,11 +161,7 @@ class Multihash private constructor(val type: Multicodec, val digest: ByteArray)
                 return Result.failure(IllegalArgumentException("length greater than remaining number of bytes in buffer"))
             }
 
-            val list = ArrayList<Byte>()
-            repeat(length) {
-                list.add(din.read())
-            }
-            val digest = list.toByteArray()
+            val digest = din.readByteArray(length)
 
             /*if (length > 0 && din.read(digest, 0, length) != length) {
                 return Result.failure(IllegalArgumentException("Error reading Multihash from buffer"))

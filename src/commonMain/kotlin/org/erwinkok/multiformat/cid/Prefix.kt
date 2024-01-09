@@ -8,7 +8,7 @@ import org.erwinkok.multiformat.util.*
 
 data class Prefix(val version: Int, val codec: Multicodec, val multihashType: Multicodec, val multiHashLength: Int) {
     fun bytes(): ByteArray {
-        val stream = CustomStream<Byte>()
+        val stream = CustomStream()
         stream.writeUnsignedVarInt(version)
         stream.writeUnsignedVarInt(codec.code)
         stream.writeUnsignedVarInt(multihashType.code)
@@ -57,7 +57,7 @@ data class Prefix(val version: Int, val codec: Multicodec, val multihashType: Mu
 
     companion object {
         fun fromBytes(buf: ByteArray): Result<Prefix> {
-            val stream = CustomStream(ArrayDeque(buf.toList()))
+            val stream = buf.toCustomStream()
             val version = stream.readUnsignedVarInt()
                 .getOrElse { return Result.failure(it) }
             val codec = stream.readUnsignedVarInt()

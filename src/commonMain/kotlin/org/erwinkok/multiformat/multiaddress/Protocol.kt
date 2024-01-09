@@ -36,7 +36,7 @@ enum class Protocol(
     val transcoder: Transcoder?,
 ) {
 
-    IP4(Multicodec.IP4, 32, false, null), //IP4(Multicodec.IP4, 32, false, Ip4Component),
+    //IP4(Multicodec.IP4, 32, false, Ip4Component),
     TCP(Multicodec.TCP, 16, false, PortComponent),
     DNS(Multicodec.DNS, LengthPrefixedVarSize, false, DnsComponent), // 4 or 6
     DNS4(Multicodec.DNS4, LengthPrefixedVarSize, false, DnsComponent),
@@ -44,7 +44,7 @@ enum class Protocol(
     DNSADDR(Multicodec.DNSADDR, LengthPrefixedVarSize, false, DnsComponent),
     UDP(Multicodec.UDP, 16, false, PortComponent),
     DCCP(Multicodec.DCCP, 16, false, PortComponent),
-    IP6(Multicodec.IP6, 128, false, null), // IP6(Multicodec.IP6, 128, false, Ip6Component),
+    // IP6(Multicodec.IP6, 128, false, Ip6Component),
     IPCIDR(Multicodec.IPCIDR, 8, false, IpCidrComponent),
     IP6ZONE(Multicodec.IP6ZONE, LengthPrefixedVarSize, false, Ip6ZoneComponent),
     SCTP(Multicodec.SCTP, 16, false, PortComponent),
@@ -79,7 +79,7 @@ enum class Protocol(
     P2P_WEBSOCKET_STAR(Multicodec.P2P_WEBSOCKET_STAR, 0, false, null),
     ;
 
-    fun sizeForAddress(stream: CustomStream<Byte>): Result<Int> {
+    fun sizeForAddress(stream: CustomStream): Result<Int> {
         if (size > 0) {
             return Result.success(size / 8)
         }
@@ -110,7 +110,7 @@ enum class Protocol(
         private val byCode = mutableMapOf<Int, Protocol>()
 
         init {
-            for (t in values()) {
+            for (t in entries) {
                 require(t.size == 0 || t.transcoder != null) { "protocols with arguments must define transcoders" }
                 require(!t.path || t.size < 0) { "protocols with arguments must define transcoders" }
                 byName[t.codec.typeName.lowercase()] = t
@@ -134,7 +134,7 @@ enum class Protocol(
             return byCode[code]
         }
 
-        fun readFrom(stream: CustomStream<Byte>): Result<Pair<Protocol, ByteArray>> {
+        fun readFrom(stream: CustomStream): Result<Pair<Protocol, ByteArray>> {
             val code = stream.readUnsignedVarInt()
                 .getOrElse { return Result.failure(it) }
             val protocol = Protocol.withCode(code.toInt()) ?: return Result.failure(IllegalArgumentException("no protocol with code $code"))
@@ -147,11 +147,7 @@ enum class Protocol(
                 }
                 //addressBytes = ByteArray(size)
 
-                val list = ArrayList<Byte>()
-                repeat(size) {
-                    list.add(stream.read())
-                }
-                addressBytes = list.toByteArray()
+                addressBytes = stream.readByteArray(size)
             } else {
                 addressBytes = byteArrayOf()
             }
@@ -179,12 +175,12 @@ enum class Protocol(
             return Result.success(Pair(protocol, addressString))
         }
 
-        fun writeTo(outputStream: CustomStream<Byte>, protocol: Protocol, addressBytes: ByteArray) {
+        fun writeTo(outputStream: CustomStream, protocol: Protocol, addressBytes: ByteArray) {
             outputStream.writeUnsignedVarInt(protocol.codec.code)
             if (protocol.size < 0) {
                 outputStream.writeUnsignedVarInt(addressBytes.size)
             }
-            outputStream.writeAll(addressBytes.toTypedArray())
+            outputStream.writeBytes(addressBytes)
         }
 
         fun writeTo(stringBuilder: StringBuilder, protocol: Protocol, addressString: String) {

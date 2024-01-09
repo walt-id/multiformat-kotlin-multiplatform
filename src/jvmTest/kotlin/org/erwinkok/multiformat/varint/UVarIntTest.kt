@@ -14,14 +14,14 @@ import org.junit.jupiter.api.Test
 internal class UVarIntTest {
     @Test
     fun check16() {
-        val stream = CustomStream<Byte>()
+        val stream = CustomStream()
         val n = stream.writeUnsignedVarInt((1u shl (16u - 1u).toInt()).toULong()).expectNoErrors()
         assertEquals(UVarInt.MaxVarintLen16, n)
     }
 
     @Test
     fun check32() {
-        val stream = CustomStream<Byte>()
+        val stream = CustomStream()
         val n = stream.writeUnsignedVarInt((1u shl (32u - 1u).toInt()).toULong()).expectNoErrors()
         assertEquals(UVarInt.MaxVarintLen32, n)
     }
@@ -49,11 +49,11 @@ internal class UVarIntTest {
     fun size() {
         for (i in 0uL..(1uL shl 16)) {
             println("Test nr: $i")
-            val outputStream = CustomStream<Byte>()
+            val outputStream = CustomStream()
             val expected = outputStream.writeUnsignedVarInt(i).expectNoErrors()
             val size = uvarintSize(i)
             assertEquals(expected, size, "Mismatch for $i")
-            val inputStream = CustomStream(ArrayDeque(outputStream.toByteArray().toList()))
+            val inputStream = outputStream.toByteArray().toCustomStream()
             val xi = inputStream.readUnsignedVarInt().expectNoErrors()
             assertEquals(i, xi)
         }
@@ -62,17 +62,11 @@ internal class UVarIntTest {
     @Test
     fun overflow() {
         expectError("varints larger than uint63 not supported") {
-            val stream = CustomStream(
-                ArrayDeque(
-                    (
-                            byteArrayOf(
-                                0xff.toByte(), 0xff.toByte(), 0xff.toByte(), 0xff.toByte(),
-                                0xff.toByte(), 0xff.toByte(), 0xff.toByte(), 0xff.toByte(),
-                                0xff.toByte(), 0xff.toByte(), 0xff.toByte(), 0x00,
-                            ).toList()
-                            ),
-                ),
-            )
+            val stream = byteArrayOf(
+                0xff.toByte(), 0xff.toByte(), 0xff.toByte(), 0xff.toByte(),
+                0xff.toByte(), 0xff.toByte(), 0xff.toByte(), 0xff.toByte(),
+                0xff.toByte(), 0xff.toByte(), 0xff.toByte(), 0x00,
+            ).toCustomStream()
             stream.readUnsignedVarInt()
         }
     }
@@ -80,7 +74,7 @@ internal class UVarIntTest {
     @Test
     fun `not minimal`() {
         expectError("varint not minimally encoded") {
-            val stream = CustomStream(ArrayDeque(byteArrayOf(0x81.toByte(), 0x00.toByte()).toList()))
+            val stream = byteArrayOf(0x81.toByte(), 0x00.toByte()).toCustomStream()
             stream.readUnsignedVarInt()
         }
     }
@@ -88,7 +82,7 @@ internal class UVarIntTest {
     @Test
     fun `end of stream`() {
         expectError("EndOfStream") {
-            val stream = CustomStream(ArrayDeque(byteArrayOf().toList()))
+            val stream = byteArrayOf().toCustomStream()
             stream.readUnsignedVarInt()
         }
     }
@@ -96,7 +90,7 @@ internal class UVarIntTest {
     @Test
     fun `unexpected end of stream`() {
         expectError("UnexpectedEndOfStream") {
-            val stream = CustomStream(ArrayDeque(byteArrayOf(0x81.toByte(), 0x81.toByte()).toList()))
+            val stream = byteArrayOf(0x81.toByte(), 0x81.toByte()).toCustomStream()
             stream.readUnsignedVarInt()
         }
     }

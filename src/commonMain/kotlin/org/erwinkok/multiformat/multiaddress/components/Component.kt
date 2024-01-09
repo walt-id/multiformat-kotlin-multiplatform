@@ -3,13 +3,13 @@ package org.erwinkok.multiformat.multiaddress.components
 
 import org.erwinkok.multiformat.multiaddress.Protocol
 import org.erwinkok.multiformat.util.CustomStream
-import org.erwinkok.multiformat.util.toByteArray
+
 
 
 abstract class Component protected constructor(val protocol: Protocol, val addressBytes: ByteArray) {
     abstract val value: String
 
-    fun writeTo(outputStream: CustomStream<Byte>) {
+    fun writeTo(outputStream: CustomStream) {
         Protocol.writeTo(outputStream, protocol, addressBytes)
     }
 
@@ -18,7 +18,7 @@ abstract class Component protected constructor(val protocol: Protocol, val addre
     }
 
     fun bytes(): ByteArray {
-        val out = CustomStream<Byte>()
+        val out = CustomStream()
         writeTo(out)
         return out.toByteArray()
     }

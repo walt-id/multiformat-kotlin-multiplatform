@@ -279,6 +279,7 @@ internal class Blake2sTest {
         ).withIndex()
             .map { (i, expectedHex) ->
                 DynamicTest.dynamicTest("Test: $i - $expectedHex") {
+                    println("Test: $i - $expectedHex")
                     val h = Blake2s.fromKey(key).expectNoErrors()
                     h.write(input.copyOfRange(0, i))
                     var sum = h.sum()

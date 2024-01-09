@@ -5,7 +5,6 @@ import org.erwinkok.multiformat.multibase.Multibase
 import org.erwinkok.multiformat.multicodec.Multicodec
 import org.erwinkok.multiformat.multihash.Multihash
 import org.erwinkok.multiformat.util.CustomStream
-import org.erwinkok.multiformat.util.toByteArray
 import org.erwinkok.multiformat.util.writeUnsignedVarInt
 
 
@@ -15,7 +14,7 @@ class CidV1(multihash: Multihash, override val multicodec: Multicodec, override 
         get() = 1
 
     override fun bytes(): ByteArray {
-        val stream = CustomStream<Byte>()
+        val stream = CustomStream()
         stream.writeUnsignedVarInt(version)
         stream.writeUnsignedVarInt(multicodec.code)
         multihash.serialize(stream)

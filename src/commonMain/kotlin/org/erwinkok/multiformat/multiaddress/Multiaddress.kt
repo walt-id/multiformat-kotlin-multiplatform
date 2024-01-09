@@ -6,8 +6,7 @@ import org.erwinkok.multiformat.multibase.Multibase
 import org.erwinkok.multiformat.multihash.Multihash
 import org.erwinkok.multiformat.util.CustomStream
 import org.erwinkok.multiformat.util.flatMap
-import org.erwinkok.multiformat.util.toByteArray
-
+import org.erwinkok.multiformat.util.toCustomStream
 
 class Multiaddress private constructor(val components: List<Component>) {
     private val _string: String by lazy { constructString() }
@@ -72,7 +71,7 @@ class Multiaddress private constructor(val components: List<Component>) {
     }
 
     private fun constructBytes(): ByteArray {
-        val outputStream = CustomStream<Byte>()
+        val outputStream = CustomStream()
         components.forEach {
             Protocol.writeTo(outputStream, it.protocol, it.addressBytes)
         }
@@ -126,7 +125,7 @@ class Multiaddress private constructor(val components: List<Component>) {
             if (bytes.size > MaxBytes) {
                 return Result.failure(IllegalArgumentException("Multiaddress is too long, over $MaxBytes bytes. Rejecting."))
             }
-            val stream = CustomStream(ArrayDeque(bytes.toList()))
+            val stream = bytes.toCustomStream()
             val components = mutableListOf<Component>()
             while (stream.available() > 0) {
                 val (protocol, addressBytes) = Protocol.readFrom(stream)

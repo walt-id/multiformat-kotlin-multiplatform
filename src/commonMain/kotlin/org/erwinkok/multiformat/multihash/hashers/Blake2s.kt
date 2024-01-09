@@ -52,7 +52,10 @@ class Blake2s private constructor(key: ByteArray?) : Hasher {
         }
 
         //System.arraycopy(p, index, block, 0, p.size - index)
-        p.copyInto(block, startIndex = index, endIndex = p.size - index)
+        // length = p.size - index
+        println("p.size=${p.size}, index=$index -> length = $length")
+//        p.copyInto(block, startIndex = index, endIndex = p.size - index)
+        p.copyInto(block, startIndex = index, endIndex = length)
 
         offset += (p.size - index)
         return Result.success(n)

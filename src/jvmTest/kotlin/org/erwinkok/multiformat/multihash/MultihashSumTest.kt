@@ -69,7 +69,7 @@ internal class MultihashSumTest {
 
     @TestFactory
     fun spec(): Stream<DynamicTest> {
-        val reader = File("./src/main/kotlin/org/erwinkok/multiformat/spec/multihash/tests/values/test_cases.csv").bufferedReader()
+        val reader = File("spec/multihash/tests/values/test_cases.csv").bufferedReader()
         reader.readLine()
         return reader.lineSequence()
             .filter { it.isNotBlank() }

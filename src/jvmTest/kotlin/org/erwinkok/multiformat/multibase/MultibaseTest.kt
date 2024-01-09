@@ -41,7 +41,7 @@ internal class MultibaseTest {
 
     @Test
     fun `test vectors`() {
-        Files.walk(Paths.get("./src/main/kotlin/org/erwinkok/multiformat/spec/multibase/tests/"), 1).forEach { file ->
+        Files.walk(Paths.get("spec/multibase/tests/"), 1).forEach { file ->
             if (file.isRegularFile() && file.isReadable() && file.name.endsWith(".csv")) {
                 logger.info { "Processing ${file.fileName}" }
                 val reader = file.bufferedReader()
@@ -235,7 +235,7 @@ internal class MultibaseTest {
     }
 
     private fun readMultibaseSpec(): Map<String, MultibaseSpec> {
-        val reader = File("./src/main/kotlin/org/erwinkok/multiformat/spec/multibase/multibase.csv").bufferedReader()
+        val reader = File("spec/multibase/multibase.csv").bufferedReader()
         reader.readLine()
         return reader.lineSequence()
             .filter { it.isNotBlank() }

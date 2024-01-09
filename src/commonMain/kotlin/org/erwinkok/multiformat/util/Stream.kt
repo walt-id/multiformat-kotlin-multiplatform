@@ -2,31 +2,55 @@
 package org.erwinkok.multiformat.util
 
 
-class CustomStream<T>(
-    val buffer: ArrayDeque<T> = ArrayDeque()
+class CustomStream(
+    val buffer: ArrayDeque<Int> = ArrayDeque(),
 ) {
     //val buffer = ArrayDeque<T>()
 
+    fun size() = buffer.size
+
+    @Deprecated("Is this correct?")
     fun available() = buffer.size
 
-    fun write(value: T) {
+    fun write(value: Int) {
         buffer.addLast(value)
     }
 
-    fun writeAll(array: Array<T>) {
-        array.forEach { write(it) }
+    fun writeBytes(b: ByteArray) {
+        buffer.addAll(b.toTypedArray().map { it.toInt() })
     }
 
-    fun read(): T {
-        return buffer.removeFirst()
+    /*fun writeAll(array: Array<Int>) {
+        array.forEach { write(it) }
+    }*/
+
+
+    fun readThrowing(): Byte {
+        return buffer.removeFirst().toByte()
     }
+
+    fun read(): Int {
+        return runCatching { buffer.removeFirst().toUByte().toInt() }.getOrElse { -1 }
+    }
+
+    fun readByteArray(size: Int): ByteArray {
+        val result = ArrayList<Byte>()
+        repeat(size) {
+            result.add(read().toByte())
+        }
+        return result.toByteArray()
+    }
+
+    fun toByteArray() = buffer.map { it.toByte() }.toByteArray()
+}
+
+fun main() {
 
 }
 
-fun ByteArray.toCustomStream() = CustomStream(ArrayDeque(toList()))
-fun CustomStream<Byte>.toByteArray() = buffer.toByteArray()
+fun ByteArray.toCustomStream() = CustomStream(ArrayDeque(toList().map { it.toInt() }))
 
-fun CustomStream<UByte>.readUnsignedVarInt(): Result<ULong> {
+/*fun CustomStream<UByte>.readUnsignedVarInt(): Result<ULong> {
     return UVarInt.readUnsignedVarInt { index ->
         try {
             val b = read()
@@ -43,13 +67,14 @@ fun CustomStream<UByte>.readUnsignedVarInt(): Result<ULong> {
             Result.failure(IllegalStateException("EndOfStream"))
         }
     }
-}
+}*/
 
-fun CustomStream<Byte>.readUnsignedVarInt(): Result<ULong> {
+fun CustomStream.readUnsignedVarInt(): Result<ULong> {
     return UVarInt.readUnsignedVarInt { index ->
         try {
             val b = read()
             if (b < 0) {
+                println("STREAM ERROR: Returned byte: $b, index is: $index -> thus ${if (index != 0) "UnexpectedEndOfStream" else "EndOfStream"} (in stream ${this.buffer.toList()})")
                 if (index != 0) {
                     Result.failure(IllegalStateException("UnexpectedEndOfStream"))
                 } else {
@@ -84,7 +109,7 @@ fun CustomStream<Byte>.readUnsignedVarInt(): Result<ULong> {
 }*/
 
 
-fun CustomStream<Byte>.writeUnsignedVarInt(x: Int): Result<Int> {
+fun CustomStream.writeUnsignedVarInt(x: Int): Result<Int> {
     return writeUnsignedVarInt(x.toULong())
 }
 
@@ -92,7 +117,7 @@ fun CustomStream<Byte>.writeUnsignedVarInt(x: Int): Result<Int> {
     return writeUnsignedVarInt(x.toULong())
 }*/
 
-fun CustomStream<Byte>.writeUnsignedVarInt(x: Long): Result<Int> {
+fun CustomStream.writeUnsignedVarInt(x: Long): Result<Int> {
     return writeUnsignedVarInt(x.toULong())
 }
 
@@ -100,9 +125,9 @@ fun CustomStream<Byte>.writeUnsignedVarInt(x: Long): Result<Int> {
     return writeUnsignedVarInt(x.toULong())
 }*/
 
-fun CustomStream<Byte>.writeUnsignedVarInt(x: ULong): Result<Int> {
+fun CustomStream.writeUnsignedVarInt(x: ULong): Result<Int> {
     return UVarInt.writeUnsignedVarInt(x) {
-        this.write(it)
+        this.write(it.toInt())
         Result.success(Unit)
     }
 }
