@@ -6,9 +6,8 @@ Various libraries could be removed and replaced with functionality that is nowad
 
 ```text
 TODO: Small tasks for Multiplatform
-1/2: `codePointAt` for `decodeBase` of Multibase -> there is a Kotlin Unicode Codepoint library
-2/3: Signatures by a Multiplatform signature library (instead of java.security.MessageDigest)
-3/3: ktor-network is only included for ConcurrentSet & Closeable
+1/2: Signatures by a Multiplatform signature library (instead of java.security.MessageDigest)
+2/2: ktor-network is only included for ConcurrentSet & Closeable
 ```
 
 ```text

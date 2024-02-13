@@ -53,6 +53,7 @@ kotlin {
                 implementation("io.ktor:ktor-network:2.3.7") // for Closeable
 
                 implementation("io.github.oshai:kotlin-logging:5.1.0")
+                implementation("de.cketti.unicode:kotlin-codepoints-deluxe:0.6.1")
             }
         }
         val jvmMain by getting {

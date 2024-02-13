@@ -1,6 +1,7 @@
 // Copyright (c) 2022 Erwin Kok. BSD-3-Clause license. See LICENSE file for more details.
 package org.erwinkok.multiformat.multibase
 
+import de.cketti.codepoints.deluxe.codePointAt
 import org.erwinkok.multiformat.multibase.bases.*
 import org.erwinkok.multiformat.util.flatMap
 
@@ -48,7 +49,7 @@ enum class Multibase(
 
     fun decode(data: String): Result<ByteArray> {
         val cp = data.codePointAt(0)
-        val charCount = Character.charCount(cp)
+        val charCount = cp.charCount
         return decoder(data.substring(charCount))
     }
 
@@ -88,7 +89,7 @@ enum class Multibase(
         }
 
         private fun decodeBase(data: String): Int {
-            return data.codePointAt(0)
+            return data.codePointAt(0).value
         }
     }
 }
