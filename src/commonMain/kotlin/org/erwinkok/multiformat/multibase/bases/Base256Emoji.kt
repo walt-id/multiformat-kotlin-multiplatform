@@ -2,7 +2,8 @@
 package org.erwinkok.multiformat.multibase.bases
 
 
-import kotlin.streams.toList
+import de.cketti.codepoints.deluxe.codePointAt
+import de.cketti.codepoints.deluxe.codePointSequence
 
 object Base256Emoji {
     private val base256emojiTable = listOf(
@@ -46,7 +47,7 @@ object Base256Emoji {
 
     init {
         for ((i, v) in base256emojiTable.withIndex()) {
-            val codePoint = v.codePointAt(0)
+            val codePoint = v.codePointAt(0).value
             forwardTable[i] = v
             reverseTable[codePoint] = i.toByte()
         }
@@ -61,11 +62,11 @@ object Base256Emoji {
     }
 
     fun decodeString(data: String): Result<ByteArray> {
-        val codePoints = data.codePoints().toList()
+        val codePoints = data.codePointSequence().toList()
         val out = ByteArray(codePoints.size)
         for ((i, cp) in codePoints.withIndex()) {
-            out[i] = (reverseTable[cp]
-                ?: return Result.failure(IllegalArgumentException("illegal base256emoji data at input byte ${Character.toString(cp)}")))
+            out[i] = (reverseTable[cp.value]
+                ?: return Result.failure(IllegalArgumentException("illegal base256emoji data at input byte ${cp.toString()}")))
         }
         return Result.success(out)
     }
